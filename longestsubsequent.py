@@ -1,4 +1,4 @@
-'''def longestsubsequent(x):
+def longestsubsequent(x):
     lst_set=set(x)
     lon_seq=[]
     for i in range(len(lst_set)):
@@ -15,12 +15,12 @@
     return lon_seq
 lls=[1,100,200,400,300,3,2]
 res=longestsubsequent(lls)
-print((res))'''
+print((res))
 
 
-'''lls = [1,1, 106, 102, 103, 3,101,104, 2,4,201,202]
+lls = [1,1, 106, 102, 103, 3,101,104, 2,4,201,202]
 res = set(lls)
-print(res)
+
 lon=[]
 for i in sorted(res):
     
@@ -35,15 +35,31 @@ for i in sorted(res):
         if len(cu) > len(lon) or (len(cu) == len(lon) and cu > lon):
             lon=cu
 
-print(lon)'''
+print(lon)
 
 
-'''x=[1,2,3,4,5]
-y=[101,102,103,104,105,106]
-if (x>y or len(x)>=len(y)):
-    print(x)
-else:
-    print(y)'''
+x = [100,4,200,1,3,2]
+x = list(set(x))
+
+x.sort()
+
+
+
+max_arr = []
+cur_arr = []
+i = 0
+while i<len(x):
+    if x[i] == x[i-1]+1:
+        cur_arr.append(x[i])
+    else:
+        cur_arr = [x[i]]
+
+    if len(cur_arr) > len(max_arr):
+        max_arr = cur_arr
+
+    i+=1
+
+print(max_arr)
 
 
 
