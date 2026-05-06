@@ -1,4 +1,4 @@
-n=int(input('Enter a number'))
+n=int(input('Enter a number : '))
 i=10
 while i<=n:
     s=0
@@ -15,8 +15,11 @@ while i<=n:
         s+=t**d_cnt
         bkp//=10
     
-    if s==i :
-        
-        print('sum after if ',s)
+
     i+=1
-        
+
+if s==n :
+    print('The given number is an Armstrong Number')
+else:
+    print('The given number is not an Armstrong Number')
+    

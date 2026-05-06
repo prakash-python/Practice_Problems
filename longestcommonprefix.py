@@ -1,19 +1,26 @@
 def logpre(words):
-    print('words at starting=',words)
+
     if not words:
         return ''
-    prefix=words[0]
-    print('prefix at intialisation=',prefix)
-    for word in words[1:]:
-        print('word in for loop=',word)
-        while not word.startswith(prefix):
-            prefix=prefix[::-1]
-            print('prefix in side for and while loop=',prefix)
-            if not prefix:
-                return ''
-    print('at last prefix=',prefix)
+
+    prefix = ''
+
+    for i in range(len(words[0])):
+
+        char = words[0][i]
+
+        for word in words[1:]:
+
+            if i >= len(word) or word[i] != char:
+                return prefix
+
+        prefix += char
+
     return prefix
-words=['flower','flow','flight']
-res=logpre(words)
+
+
+words = ['flower', 'flow', 'flight']
+
+res = logpre(words)
+
 print(res)
-        
