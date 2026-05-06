@@ -1,0 +1,18 @@
+{
+    "github.copilot.inlineSuggest.enable": false,
+    "github.copilot.nextEditSuggestions.enabled": false,
+
+    "editor.inlineSuggest.enabled": false,
+
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": false,
+        "strings": false
+    },
+
+    "editor.suggestOnTriggerCharacters": true,
+
+    "editor.acceptSuggestionOnEnter": "smart",
+
+    "editor.tabCompletion": "on"
+}
