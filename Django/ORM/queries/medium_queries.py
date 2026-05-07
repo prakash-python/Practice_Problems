@@ -1,33 +1,9 @@
-# Django ORM Practice Questions with Independent Models
+# Django ORM Practice Questions - Medium
 
 from django.db import models
 from django.db.models import Max, Avg, Q, Sum, Count, F
 from datetime import date
 
-# marks > 50 AND name contains 'a' (case insensitive), order by marks descending
-
-class Student(models.Model):
-    name = models.CharField(max_length=100)
-    marks = models.IntegerField()
-
-output = Student.objects.filter(marks__gt=50, name__icontains='a').order_by('-marks')
-
-# Get top 3 Student with highest marks, but return only names and marks
-
-class Student(models.Model):
-    name = models.CharField(max_length=100)
-    marks = models.IntegerField()
-
-output = Student.objects.values('name', 'marks').order_by('-marks')[:3]
-
-# Get the maximum salary only from employees in "IT" department
-
-class Employee(models.Model):
-    name = models.CharField(max_length=100)
-    salary = models.IntegerField()
-    department = models.CharField(max_length=100)
-
-output = Employee.objects.filter(department__iexact='IT').aggregate(Max('salary'))
 
 # Get all books where author name contains "ra" (case insensitive)
 
@@ -60,39 +36,6 @@ class Order(models.Model):
 
 output = Customer.objects.prefetch_related('order_set').filter(order__amount__gt=500).distinct()
 
-# Get products whose price is between 100 and 500
-
-class Product(models.Model):
-    name = models.CharField(max_length=100)
-    price = models.IntegerField()
-
-output = Product.objects.filter(price__range=(100, 500)).order_by('price')
-
-# Get students whose marks are NOT less than 35 order by name ascending
-
-class Student(models.Model):
-    name = models.CharField(max_length=100)
-    marks = models.IntegerField()
-
-output = Student.objects.filter(marks__gte=35).order_by('name')
-
-# Get employees whose department is "IT" OR salary greater than 70000
-
-class Employee(models.Model):
-    name = models.CharField(max_length=100)
-    salary = models.IntegerField()
-    department = models.CharField(max_length=100)
-
-output = Employee.objects.filter(Q(department__exact='IT') | Q(salary__gt=70000))
-
-# Get products where stock is either less than 10 OR greater than 100
-
-class Product(models.Model):
-    name = models.CharField(max_length=100)
-    stock = models.IntegerField()
-
-output = Product.objects.filter(Q(stock__lt=10) | Q(stock__gt=100))
-
 # Get all customers along with their total order amount
 
 class Customer(models.Model):
@@ -114,36 +57,6 @@ class Book(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
 output = Author.objects.values('name').annotate(number_of_books=Count('book'))
-
-# ORM query to check whether any user exists with email "[test@gmail.com](mailto:test@gmail.com)"
-
-class User(models.Model):
-    username = models.CharField(max_length=100)
-    email = models.EmailField()
-
-output = User.objects.filter(email__exact='test@gmail.com').exists()
-
-# Get employees whose salary is NOT between 30000 and 50000
-
-class Employee(models.Model):
-    name = models.CharField(max_length=100)
-    salary = models.IntegerField()
-
-output = Employee.objects.exclude(salary__range=(30000, 50000))
-
-# Get only student names as a flat list
-
-class Student(models.Model):
-    name = models.CharField(max_length=100)
-
-output = Student.objects.values_list('name', flat=True)
-
-# Count total orders where amount is greater than 1000
-
-class Order(models.Model):
-    amount = models.IntegerField()
-
-output = Order.objects.filter(amount__gt=1000).count()
 
 # Get employees whose department name starts with "D" and salary is greater than 50000
 
@@ -301,13 +214,6 @@ class Employee(models.Model):
 
 output = Employee.objects.values('department').annotate(total_sal=Sum('salary'))
 
-# Check whether a user exists whose username starts with "admin"
-
-class User(models.Model):
-    username = models.CharField(max_length=100)
-
-output = User.objects.filter(username__startswith='admin').exists()
-
 # Get employees along with their department names
 
 class Department(models.Model):
@@ -352,40 +258,6 @@ class Product(models.Model):
 
 output = Product.objects.filter(sold__gt=F('stock'))
 
-# Get employees who joined in the year 2025
-
-class Employee(models.Model):
-    name = models.CharField(max_length=100)
-    joining_date = models.DateField()
-
-output = Employee.objects.filter(joining_date__year=2025)
-
-# Get orders created in current month
-
-class Order(models.Model):
-    amount = models.IntegerField()
-    created_at = models.DateField()
-
-today = date.today()
-
-output = Order.objects.filter(created_at__month=today.month, created_at__year=today.year)
-
-# Get top 3 most expensive products
-
-class Product(models.Model):
-    name = models.CharField(max_length=100)
-    price = models.IntegerField()
-
-output = Product.objects.order_by('-price')[:3]
-
-# Get employee with second highest salary
-
-class Employee(models.Model):
-    name = models.CharField(max_length=100)
-    salary = models.IntegerField()
-
-output = Employee.objects.order_by('-salary')[1:2]
-
 # Get students Whose marks are equal to class average marks
 
 class Student(models.Model):
@@ -395,3 +267,183 @@ class Student(models.Model):
 avg_marks = Student.objects.aaggregate(avg=Avg('marks'))['avg']
 
 output = Student.objects.filter(marks=avg_marks)
+
+# Get customers Who have more than 3 orders
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+
+class Order(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+
+output = Customer.objects.annotate(customer_order=Count('order')).filter(customer_order__gt=3)
+
+# Get authors Who have books priced greater than 1000
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    price = models.IntegerField()
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+output = Author.objects.filter(book__price__gt=1000).distinct()
+
+# Get departments Which have more than 5 employees
+
+class Department(models.Model):
+    name = models.CharField(max_length=100)
+
+class Employee(models.Model):
+    name = models.CharField(max_length=100)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+output = Department.objects.annotate(employees_in_dept=Count('employee')).filter(employees_in_dept__gt=5)
+
+# Get customers Along with their highest order amount
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+
+class Order(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+
+output = Customer.objects.annotate(highest_ord_amount=Max('order__amount'))
+
+# Get publishers Who have no books
+
+class Publisher(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
+
+output = Publisher.objects.filter(book__isnull=True)
+
+# Get teachers Who teach subject "Maths"
+
+class Teacher(models.Model):
+    name = models.CharField(max_length=100)
+
+class Subject(models.Model):
+    name = models.CharField(max_length=100)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+
+output = Teacher.objects.filter(subject__name__exact='Maths')
+
+# Get books Along with author details efficiently
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    price = models.IntegerField()
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+output = Book.objects.select_related('author')
+
+# Get students Whose average marks are greater than 80
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+class Mark(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=100)
+    score = models.IntegerField()
+
+output = Student.objects.annotate(avg_marks=Avg('mark__score')).filter(avg_marks__gt=80)
+
+# Get companies Which have no employees
+
+class Company(models.Model):
+    name = models.CharField(max_length=100)
+
+class Employee(models.Model):
+    name = models.CharField(max_length=100)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+output = Company.objects.filter(employee__isnull=True)
+
+# Get departments Along with average employee salary
+
+class Department(models.Model):
+    name = models.CharField(max_length=100)
+
+class Employee(models.Model):
+    name = models.CharField(max_length=100)
+    salary = models.IntegerField()
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+output = Department.objects.annotate(avg_emp_sal=Avg('employee__salary'))
+
+# Get products Along with category details efficiently
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+output = Product.objects.select_related('category')
+
+# Get authors Whose books have at least one review with rating greater than 4
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+class Review(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    rating = models.IntegerField()
+
+output = Author.objects.filter(book__review__rating__gt=4)
+
+# Get courses Having more than 10 students enrolled
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+class Course(models.Model):
+    name = models.CharField(max_length=100)
+    students = models.ManyToManyField(Student)
+
+output = Course.objects.annotate(total_students=Count('students')).filter(total_students__gt=10)
+
+# Get customers Whose orders contain items priced greater than 5000
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+
+class Order(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+
+class Item(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    price = models.IntegerField()
+
+output = Customer.objects.filter(order__item__price__gt=5000)
+
+# Get teachers Whose subjects have exams with total marks greater than 90 Avoid duplicate teachers
+
+class Teacher(models.Model):
+    name = models.CharField(max_length=100)
+
+class Subject(models.Model):
+    name = models.CharField(max_length=100)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+
+class Exam(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    total_marks = models.IntegerField()
+
+output = Teacher.objects.filter(subject__exam__total_marks__gt=90).distinct()
