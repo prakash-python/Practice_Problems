@@ -447,3 +447,14 @@ class Exam(models.Model):
     total_marks = models.IntegerField()
 
 output = Teacher.objects.filter(subject__exam__total_marks__gt=90).distinct()
+
+# top 3 most ordered products based on total quantity sold
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+
+class Order(models.Model):
+    product = models.ForeignKey(Product)
+    quantity = models.IntegerField()
+
+output = Product.objects.annotate(total_quantity_sold=Sum('order__quantity')).order_by('-total_quantity_sold')[:3]
